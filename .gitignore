@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+ENV/
+.generated/
+.DS_Store
+.idea/
+.vscode/
+*.log
+generated_repos/

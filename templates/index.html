@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Repository Factory</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  </head>
+  <body>
+    <main class="container">
+      <h1>Repository Factory</h1>
+      <form method="post" action="/">
+        <div class="grid">
+          <label>
+            Count
+            <input type="number" name="count" min="1" max="100" value="1" required>
+          </label>
+          <label>
+            Prefix
+            <input type="text" name="prefix" value="project" required>
+          </label>
+        </div>
+        <div class="grid">
+          <label>
+            Naming Strategy
+            <select name="naming">
+              <option value="sequential">Sequential</option>
+              <option value="random">Random</option>
+            </select>
+          </label>
+          <label>
+            Start Index
+            <input type="number" name="start_index" min="1" value="1">
+          </label>
+        </div>
+        <button type="submit">Create Repositories</button>
+      </form>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul>
+            {% for category, message in messages %}
+              <li><strong>{{ category|capitalize }}:</strong> {{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      {% if created %}
+        <section>
+          <h2>Created this run</h2>
+          <ul>
+            {% for item in created %}
+              <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+      <section>
+        <h2>Generated repositories</h2>
+        {% if specs %}
+          <ul>
+            {% for spec in specs %}
+              <li>{{ spec }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No repositories generated yet.</p>
+        {% endif %}
+      </section>
+    </main>
+  </body>
+</html>
