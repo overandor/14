@@ -1,6 +1,6 @@
 # Repository Factory
 
-A minimal Flask application for spinning up pre-initialized Git repositories with standardized launch metadata.
+A minimal Flask application for spinning up pre-initialized Git repositories with standardized launch metadata. It now also ships a SnakeChain prototype: a Python DSL → Solidity transpilation toolchain with optional compilation and deployment hooks.
 
 ## Quickstart
 
@@ -12,6 +12,47 @@ python app.py
 ```
 
 Navigate to `http://localhost:8000` and submit the form to generate repositories. The app initializes Git, writes a README with launch destinations, and seeds a `.gitignore` for each repository.
+
+## SnakeChain DSL Tooling
+
+The `snakechain` package converts a restricted Python-style DSL into Solidity and provides optional compilation/deployment helpers.
+
+### Quick check
+
+```
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest tests/test_snakechain.py
+```
+
+### Example
+
+```
+from snakechain import Contract
+
+c = Contract.from_file("examples/erc20.dsl")
+solidity_source = c.solidity()
+# optional compilation if solc is available
+# artifact = c.compile()
+# deployment requires RPC URL + private key
+# c.deploy(rpc_url, private_key)
+```
+
+DSL example: `examples/erc20.dsl`
+
+```
+contract ERC20:
+    name: string = "Token"
+    symbol: string = "TKN"
+    totalSupply: uint256 = 1000000
+    balances: mapping[address,uint256]
+
+    def transfer(to: address, amount: uint256):
+        assert self.balances[msg.sender] >= amount
+        self.balances[msg.sender] = self.balances[msg.sender] - amount
+        self.balances[to] = self.balances[to] + amount
+```
 
 ## Configuration
 
@@ -32,3 +73,5 @@ Repositories are emitted under `generated_repos/`. Each includes:
 pip install -r requirements-dev.txt
 pytest
 ```
+
+Continuous integration runs the same test suite on pushes and pull requests to `work` using GitHub Actions (`.github/workflows/ci.yml`).
