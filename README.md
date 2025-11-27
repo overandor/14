@@ -26,6 +26,20 @@ pip install -r requirements.txt
 pytest tests/test_snakechain.py
 ```
 
+### CLI usage
+
+Transpile a DSL contract to Solidity from the command line:
+
+```
+python -m snakechain examples/erc20.dsl -o build/ERC20.sol
+```
+
+To emit to stdout instead of a file:
+
+```
+python -m snakechain examples/erc20.dsl
+```
+
 ### Example
 
 ```
