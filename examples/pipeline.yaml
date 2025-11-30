@@ -1,0 +1,40 @@
+steps:
+  - name: fetch_data
+    type: fetch_data
+    command: |
+      python - <<'PY'
+      from datetime import datetime
+      from pathlib import Path
+      Path('artifacts').mkdir(exist_ok=True)
+      Path('artifacts/market_tick.json').write_text(
+          '{"timestamp": "%s"}' % datetime.utcnow().isoformat(),
+          encoding='utf-8'
+      )
+      PY
+  - name: human_gate
+    type: human_gate
+    command: "echo 'awaiting human proof'"
+    proof_path: artifacts/proof.txt
+    expected_token: approved
+  - name: signal_generator
+    type: signal_generator
+    command: |
+      python - <<'PY'
+      import json
+      from pathlib import Path
+
+      tick = json.loads(Path('artifacts/market_tick.json').read_text(encoding='utf-8'))
+      Path('artifacts/signal.json').write_text(
+          json.dumps({"signal": "hold", "timestamp": tick["timestamp"]}),
+          encoding='utf-8'
+      )
+      PY
+  - name: profit_evaluator
+    type: profit_evaluator
+    command: |
+      python - <<'PY'
+      from pathlib import Path
+      if not Path('artifacts/signal.json').exists():
+          raise SystemExit(1)
+      Path('artifacts/pnl.txt').write_text('0', encoding='utf-8')
+      PY

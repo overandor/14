@@ -68,6 +68,25 @@ contract ERC20:
         self.balances[to] = self.balances[to] + amount
 ```
 
+### Realization-Only DAG (human-in-the-loop pipeline)
+
+`snakechain.dag` provides a minimal execution engine for a four-stage pipeline that enforces a proofable human gate before any downstream steps run. Pipelines are declared in YAML and must start with `fetch_data` → `human_gate` → `signal_generator` → `profit_evaluator`.
+
+Run a pipeline definition:
+
+```
+python - <<'PY'
+from pathlib import Path
+from snakechain import RealizationDagRunner, load_pipeline
+
+pipeline = load_pipeline(Path('examples/pipeline.yaml'))
+runner = RealizationDagRunner(pipeline, block_for_proof=False)
+runner.run()
+PY
+```
+
+To satisfy the human gate in `examples/pipeline.yaml`, write `approved` into `artifacts/proof.txt` before execution.
+
 ## Configuration
 
 - **Count** – number of repositories to create in a single run (bounded by form controls).
