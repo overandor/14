@@ -11,9 +11,9 @@ _TEMPLATE = """// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 contract {{ contract.name }} {
-{% for var in contract.state_vars %}    {{ var.type }} public {{ var.name }}{% if var.value %} = {{ var.value }}{% endif %};
+{% for var in contract.state_vars %}    {{ format_type(var.type) }} public {{ var.name }}{% if var.value %} = {{ var.value }}{% endif %};
 {% endfor %}
-{% for fn in contract.functions %}    function {{ fn.name }}({{ fn.parameters | join(', ') }}) {{ fn.visibility }} {
+{% for fn in contract.functions %}    function {{ fn.name }}({{ format_params(fn.parameters) }}) {{ fn.visibility }} {
 {{ render_statements(fn.body, 8) }}    }
 
 {% endfor %}}
@@ -51,14 +51,26 @@ def render_statements(body: List[Statement], indent: int) -> str:
     return "\n".join(lines) + ("\n" if lines else "")
 
 
+def _format_type(type_str: str) -> str:
+    if type_str.startswith("mapping[") and type_str.endswith("]"):
+        inner = type_str[len("mapping["):-1]
+        parts = [part.strip() for part in inner.split(",", 1)]
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            raise ValueError(f"Invalid mapping type: {type_str}")
+        key, value = parts
+        return f"mapping({key} => {value})"
+    return type_str
+
+
 def _format_params(params):
-    return [f"{param.type} {param.name}" for param in params]
+    return ", ".join(f"{_format_type(param.type)} {param.name}" for param in params)
 
 
 def transpile(contract: ContractSpec) -> str:
     env = Environment(undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
     env.globals["render_statements"] = render_statements
-    env.filters["join"] = lambda items, sep: sep.join(map(str, items))
+    env.globals["format_type"] = _format_type
+    env.globals["format_params"] = _format_params
     template = env.from_string(_TEMPLATE)
     rendered = template.render(contract=contract)
     return rendered

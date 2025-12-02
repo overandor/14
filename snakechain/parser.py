@@ -80,7 +80,7 @@ grammar = r"""
              | MAPPING_TYPE -> mapping_type
 
     BASE_TYPE: /(address|string|uint256|bool)/
-    MAPPING_TYPE: /mapping\[(address|string|uint256|bool),(address|string|uint256|bool)\]/
+    MAPPING_TYPE: /mapping\s*\[\s*(address|string|uint256|bool)\s*,\s*(address|string|uint256|bool)\s*\]/
 
     PLUS: "+"
     MINUS: "-"

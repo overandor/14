@@ -1,4 +1,5 @@
 import pathlib
+import textwrap
 
 from snakechain import Contract, DSLParser, SolidityTranspiler
 
@@ -23,3 +24,22 @@ def test_transpile_solidity_includes_require_and_assignment():
     assert "require(balances[msg.sender]" in solidity
     assert "balances[msg.sender] = balances[msg.sender] - amount;" in solidity
     assert "function transfer(address to, uint256 amount) public" in solidity
+
+
+def test_mapping_types_are_rendered_with_arrow_syntax():
+    parser = DSLParser()
+    spec = parser.parse(
+        textwrap.dedent(
+            """\
+contract Vault:
+    balances: mapping[address, uint256]
+    def set_balance(to: address, amount: uint256):
+        self.balances[to] = amount
+"""
+        )
+    )
+
+    solidity = SolidityTranspiler().transpile(spec)
+
+    assert "mapping(address => uint256) public balances;" in solidity
+    assert "function set_balance(address to, uint256 amount) public" in solidity
