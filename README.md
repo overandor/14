@@ -108,3 +108,7 @@ pytest
 ```
 
 Continuous integration runs the same test suite on pushes and pull requests to `work` using GitHub Actions (`.github/workflows/ci.yml`).
+
+## Deployment status
+
+No smart contract toolchain is present (no Hardhat config, Foundry config, or `contracts/` directory), and no frontend framework is scaffolded (no `package.json`, `src/`, or `app/` structure). Contract or UI deployment is not possible until those components are added. See `DEPLOYMENT_STATUS.md` for a concise assessment.
